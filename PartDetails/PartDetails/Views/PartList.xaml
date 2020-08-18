@@ -1,0 +1,131 @@
+﻿<Window x:Class="PartDetails.Views.PartList"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PartDetails.Views"
+        xmlns:VM="clr-namespace:PartDetails.Models"
+   
+        mc:Ignorable="d"
+        Title="Hierarchical Data Viewer" Height="390" Width="550" Background="AliceBlue" ResizeMode="NoResize">
+
+    <Window.Resources>
+        <ResourceDictionary Source="../Styles/TabControlStyles.xaml"></ResourceDictionary>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="65"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="200"/>
+            <!--<RowDefinition Height="80"/>-->
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Grid.Row="0" Grid.ColumnSpan="3" BorderThickness="3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <RadioButton Grid.Row="0" VerticalAlignment="Center" Grid.Column="0" Margin="20,5,10,5" IsChecked="True" Command="{Binding PartSelected}">Part Number</RadioButton>
+                <RadioButton Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="20,5,10,5" Command="{Binding FileSelected}" >File Names</RadioButton>
+
+
+                    <Button Name="btnExport" Grid.Row="0" Grid.Column="2"  Width="45" Height="45" HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom" FontSize="20" Style="{StaticResource CircleButton}" ToolTip="Export to JSON"
+                            Command="{Binding btnExportClick}">
+                        <Image Source= "..\Images\Export.png" Height="30" Width="30"  ></Image>
+                    </Button>
+
+            </Grid>
+        </GroupBox>
+        <TabControl Name="tabDynamic" Grid.Row="1" Grid.ColumnSpan="3" ItemsSource="{Binding Tabs}" SelectedIndex="{Binding TabIndex}" SelectionChanged="TabDynamic_SelectionChanged" 
+                    Height="30" Style="{DynamicResource ResourceKey=styleTabControl}">
+
+            <TabControl.Resources>
+
+                <Style  TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Gainsboro" CornerRadius="4,4,0,0" Margin="2,0">
+                                    <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="10,2"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                      
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=gradientBrushSegmentedActiveTabItem}" />
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ResourceKey=gradientBrushSegmentedTabItem}"  />
+
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+           </TabControl.Resources>
+        </TabControl>
+     
+
+
+        
+        <local:TreeListView  Grid.Row="2" Grid.ColumnSpan="3" x:Name="trVwPerson" AllowsColumnReorder="True" xmlns:obj="clr-namespace:PartDetails.Views" >
+            <local:TreeListView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Path=SubParts}" DataType="{x:Type VM:Parts}"></HierarchicalDataTemplate>
+            </local:TreeListView.ItemTemplate>
+
+            <local:TreeListView.Columns>
+                <GridViewColumn Header="Item Name" Width="300">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate  DataType="{x:Type VM:Parts}">
+                            <StackPanel Orientation="Horizontal">
+                                <local:TreeListViewExpander/>
+
+                                <TextBlock Text="{Binding Path=Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="Qty" Width="50">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate  DataType="{x:Type VM:Parts}">
+                            <TextBlock Text="{Binding Path=Qty}"/>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+
+                <GridViewColumn Header="Description" Width="181">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate  DataType="{x:Type VM:Parts}">
+                            <TextBlock Text="{Binding Path=Description}"/>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+
+            </local:TreeListView.Columns>
+
+        </local:TreeListView>
+
+
+    </Grid>
+
+</Window>
