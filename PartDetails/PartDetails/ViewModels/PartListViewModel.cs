@@ -148,26 +148,31 @@ namespace PartDetails.ViewModels
             _tabItems = new List<TabItem>();
             int count = _tabItems.Count;
 
-            
-            dicRootConfig = objPartDL.GetRootPartConfigNames();
-            TabItem tab = null;
-            dicRootConfig.ToList().ForEach
-            (
-                pair =>
-                {
-              
-                    tab = new TabItem();
-                    tab.Header = string.Format(pair.Value);
-                    tab.Name = "Tab_" + pair.Key.ToString();
-     
-                    tab.Uid = pair.Key.ToString();
-      
-                    _tabItems.Insert(count, tab);
-                    count++;
+            try
+            {
+                dicRootConfig = objPartDL.GetRootPartConfigNames();
+                TabItem tab = null;
+                dicRootConfig.ToList().ForEach
+                (
+                    pair =>
+                    {
 
-                }
-            );
+                        tab = new TabItem();
+                        tab.Header = string.Format(pair.Value);
+                        tab.Name = "Tab_" + pair.Key.ToString();
 
+                        tab.Uid = pair.Key.ToString();
+
+                        _tabItems.Insert(count, tab);
+                        count++;
+
+                    }
+                );
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Exception occured." + ex.Message);
+            }
             return _tabItems;
 
 
@@ -181,40 +186,47 @@ namespace PartDetails.ViewModels
         {
 
             ObservableCollection<Parts> lstRootPart = new ObservableCollection<Parts>();
-    
-            //Getting flat hierarchical part details from db
-            DataTable dtNodes = objPartDL.GetPartNodeDetails(iRootPartId,  IsShowPart);
 
-            if (dtNodes.Rows.Count > 0)
+            try
             {
-                //binding the model object with flat hierarchical data from db
-                List<Parts> lstTable = dtNodes.AsEnumerable().Select(m => new Parts()
+                //Getting flat hierarchical part details from db
+                DataTable dtNodes = objPartDL.GetPartNodeDetails(iRootPartId, IsShowPart);
+
+                if (dtNodes.Rows.Count > 0)
                 {
-                    id = m.Field<int>("ChildConfigIndex"),
-                    parent_id = m.Field<int>("ParentConfigIndex"),
+                    //binding the model object with flat hierarchical data from db
+                    List<Parts> lstTable = dtNodes.AsEnumerable().Select(m => new Parts()
+                    {
+                        id = m.Field<int>("ChildConfigIndex"),
+                        parent_id = m.Field<int>("ParentConfigIndex"),
 
-                    Qty = m.Field<double>("Qty"),
-                    Name = m.Field<string>("ChildName"),
-                    Description = m.Field<string>("Description"),
-                    RootDescription = m.Field<string>("Root_Description")
-                }).ToList();
+                        Qty = m.Field<double>("Qty"),
+                        Name = m.Field<string>("ChildName"),
+                        Description = m.Field<string>("Description"),
+                        RootDescription = m.Field<string>("Root_Description")
+                    }).ToList();
 
-                //binding the root element of treeview
-                var root = new Parts { Name = dtNodes.Rows[0][0].ToString(), parent_id = lstTable[0].parent_id, id = lstTable[0].id, Qty = lstTable[0].Qty, Description = lstTable[0].RootDescription };
+                    //binding the root element of treeview
+                    var root = new Parts { Name = dtNodes.Rows[0][0].ToString(), parent_id = lstTable[0].parent_id, id = lstTable[0].id, Qty = lstTable[0].Qty, Description = lstTable[0].RootDescription };
 
 
-                //converting flat data in to hierarchical tree object
-                node_list = new Dictionary<int, Parts> { { lstTable[0].parent_id, root } };
+                    //converting flat data in to hierarchical tree object
+                    node_list = new Dictionary<int, Parts> { { lstTable[0].parent_id, root } };
 
-                foreach (var item in lstTable)
-                {
-                    node_list.Add(item.id, item);
-                    node_list[item.parent_id].SubParts.Add(node_list[item.id]);
+                    foreach (var item in lstTable)
+                    {
+                        node_list.Add(item.id, item);
+                        node_list[item.parent_id].SubParts.Add(node_list[item.id]);
+                    }
+
+                    //Assigning complete hierarchy to list
+                    lstRootPart.Add(node_list.First().Value);
+
                 }
-
-                //Assigning complete hierarchy to list
-                lstRootPart.Add(node_list.First().Value);
-
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Exception occured." + ex.Message);
             }
             return lstRootPart;
 

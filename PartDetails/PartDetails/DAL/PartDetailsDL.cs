@@ -33,21 +33,28 @@ namespace PartDetails.DAL
             SqlDataAdapter da;
 
             DataTable dt = new DataTable();
-            using (SqlConnection con = new SqlConnection(GetConnectionString()))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand("SP_GetRootConfig", con))
+                using (SqlConnection con = new SqlConnection(GetConnectionString()))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                                       
-                    con.Open();
-                    da = new SqlDataAdapter(cmd);
-                    da.Fill(dt);
-                    con.Close();
-                    lstRootPartConfig = dt.AsEnumerable().ToDictionary<DataRow, int, string>(row => Convert.ToInt32(row[0]),
-                                       row => row[1].ToString());
+                    using (SqlCommand cmd = new SqlCommand("SP_GetRootConfig", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        con.Open();
+                        da = new SqlDataAdapter(cmd);
+                        da.Fill(dt);
+                        con.Close();
+                        lstRootPartConfig = dt.AsEnumerable().ToDictionary<DataRow, int, string>(row => Convert.ToInt32(row[0]),
+                                           row => row[1].ToString());
 
 
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
             return lstRootPartConfig;
 
@@ -65,23 +72,30 @@ namespace PartDetails.DAL
             SqlDataAdapter da;
 
             DataTable dt = new DataTable();
-            using (SqlConnection con = new SqlConnection(GetConnectionString()))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand("GetPartNodeDetails", con))
+                using (SqlConnection con = new SqlConnection(GetConnectionString()))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (SqlCommand cmd = new SqlCommand("GetPartNodeDetails", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.Add("@PartId", SqlDbType.Int).Value = iPartId;
-                    cmd.Parameters.Add("@ShowPart", SqlDbType.Bit).Value = blnIsShowPart;
-                
+                        cmd.Parameters.Add("@PartId", SqlDbType.Int).Value = iPartId;
+                        cmd.Parameters.Add("@ShowPart", SqlDbType.Bit).Value = blnIsShowPart;
 
-                    con.Open();
-                    da = new SqlDataAdapter(cmd);
-                    da.Fill(dt);
-        
-                    con.Close();
 
+                        con.Open();
+                        da = new SqlDataAdapter(cmd);
+                        da.Fill(dt);
+
+                        con.Close();
+
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
             return dt;
 
