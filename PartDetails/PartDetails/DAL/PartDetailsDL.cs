@@ -14,7 +14,7 @@ namespace PartDetails.DAL
     {
         public static SqlConnection Sqlcon = new SqlConnection();
         Dictionary<int, string> lstRootPartConfig = new Dictionary<int, string>();
-
+        //test comment
         /// <summary>
         ///  To get connection string from app.config
         /// </summary>
